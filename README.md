@@ -1,1 +1,1 @@
-Take home assignment for OpenFX. Fingers crossed 🤞
+Take home assignment for OpenFX :)
