@@ -2,7 +2,6 @@ import React, { createContext, useReducer } from "react";
 import type { ReactNode } from "react";
 import type { Quote, Transaction } from "../types";
 
-// Application State
 export interface AppState {
   currentStep: "quote" | "confirm" | "status";
   quote: Quote | null;
@@ -11,7 +10,6 @@ export interface AppState {
   error: string | null;
 }
 
-// Action Types
 export type AppAction =
   | { type: "SET_QUOTE"; payload: Quote }
   | { type: "CLEAR_QUOTE" }
@@ -22,7 +20,6 @@ export type AppAction =
   | { type: "GO_TO_STEP"; payload: "quote" | "confirm" | "status" }
   | { type: "RESET" };
 
-// Initial State
 const initialState: AppState = {
   currentStep: "quote",
   quote: null,
@@ -31,7 +28,6 @@ const initialState: AppState = {
   error: null,
 };
 
-// Reducer
 const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
     case "SET_QUOTE":
@@ -67,7 +63,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return {
         ...state,
         isLoading: action.payload,
-        error: action.payload ? null : state.error, // Clear error when starting new loading
+        error: action.payload ? null : state.error,
       };
 
     case "SET_ERROR":
@@ -92,7 +88,6 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
   }
 };
 
-// Context
 interface AppContextType {
   state: AppState;
   dispatch: React.Dispatch<AppAction>;
@@ -101,12 +96,10 @@ interface AppContextType {
 // eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// Provider Props
 interface AppProviderProps {
   children: ReactNode;
 }
 
-// Provider Component
 export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
 

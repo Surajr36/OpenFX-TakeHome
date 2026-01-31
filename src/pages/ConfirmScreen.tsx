@@ -17,13 +17,11 @@ const ConfirmScreen: React.FC = () => {
   const paymentSubmittedRef = useRef(false);
 
   useEffect(() => {
-    // Redirect if no quote
     if (!quote) {
       navigate("/");
       return;
     }
 
-    // Countdown timer
     const updateTimer = () => {
       const remaining = Math.max(
         0,
@@ -53,7 +51,6 @@ const ConfirmScreen: React.FC = () => {
       return;
     }
 
-    // Check quote expiry one more time before submitting
     if (Date.now() >= quote.expiresAt) {
       setIsQuoteExpired(true);
       dispatch({
@@ -78,7 +75,6 @@ const ConfirmScreen: React.FC = () => {
 
       const response = await submitPayment(paymentRequest);
 
-      // Fetch initial transaction status
       const transaction = {
         transactionId: response.transactionId,
         status: response.status,
@@ -100,7 +96,6 @@ const ConfirmScreen: React.FC = () => {
         error instanceof Error ? error.message : "An error occurred";
       dispatch({ type: "SET_ERROR", payload: message });
       setIsSubmitting(false);
-      // Reset submission flag on error so user can retry
       paymentSubmittedRef.current = false;
     }
   };
@@ -131,7 +126,6 @@ const ConfirmScreen: React.FC = () => {
             Confirm Payment
           </h1>
 
-          {/* Quote Expiry Warning */}
           <div
             className={`mb-6 p-4 rounded-lg border ${
               isQuoteExpired
@@ -164,7 +158,6 @@ const ConfirmScreen: React.FC = () => {
             )}
           </div>
 
-          {/* Transaction Summary */}
           <div className="mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900 mb-4">
               Transaction Summary
@@ -217,7 +210,6 @@ const ConfirmScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Error Display */}
           {state.error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-800 text-sm font-semibold">
@@ -226,7 +218,6 @@ const ConfirmScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex gap-3">
             <button
               onClick={handleBack}
@@ -270,7 +261,6 @@ const ConfirmScreen: React.FC = () => {
             </button>
           </div>
 
-          {/* Information Notice */}
           <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-blue-800">
               <strong>Note:</strong> By clicking "Pay Now", you authorize this

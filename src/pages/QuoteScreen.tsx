@@ -16,7 +16,6 @@ const QuoteScreen: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState<number>(0);
   const [isQuoteExpired, setIsQuoteExpired] = useState(false);
 
-  // Countdown timer effect
   useEffect(() => {
     if (!currentQuote) {
       setTimeRemaining(0);
@@ -93,7 +92,6 @@ const QuoteScreen: React.FC = () => {
             Get Exchange Quote
           </h1>
 
-          {/* Currency Selection Form */}
           <div className="space-y-4 mb-6">
             <div>
               <label
@@ -160,14 +158,12 @@ const QuoteScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Error Display */}
           {state.error && (
             <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-800 text-sm">{state.error}</p>
             </div>
           )}
 
-          {/* Get Quote Button */}
           <button
             onClick={handleGetQuote}
             disabled={state.isLoading}
@@ -176,7 +172,6 @@ const QuoteScreen: React.FC = () => {
             {state.isLoading ? "Fetching Quote..." : "Get Quote"}
           </button>
 
-          {/* Quote Display */}
           {currentQuote && (
             <div className="mt-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
               <div className="flex justify-between items-start mb-4">

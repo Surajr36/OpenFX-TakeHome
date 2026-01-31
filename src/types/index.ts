@@ -1,5 +1,3 @@
-// Types for the OpenFX application
-
 export type TransactionStatus = "PROCESSING" | "SENT" | "SETTLED" | "FAILED";
 
 export interface Quote {
@@ -10,7 +8,7 @@ export interface Quote {
   fee: number;
   destinationAmount: number;
   totalPayable: number;
-  expiresAt: number; // Unix timestamp
+  expiresAt: number;
   quoteId: string;
 }
 

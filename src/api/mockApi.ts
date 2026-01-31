@@ -5,34 +5,11 @@ import type {
   Transaction,
 } from "../types";
 import { getMockConfig } from "./mockConfig";
+import { getExchangeRate } from "./exchangeRateService";
 
 // In-memory storage for tracking transactions and preventing double submissions
 const transactionStore = new Map<string, Transaction>();
 const pendingPayments = new Set<string>();
-
-// Base exchange rates (simplified - in production would fetch from real API)
-const BASE_RATES: Record<string, number> = {
-  USD: 1.0,
-  EUR: 0.92,
-  JPY: 149.5,
-  GBP: 0.79,
-  AUD: 1.52,
-  CAD: 1.35,
-  CHF: 0.88,
-  CNY: 7.24,
-  SEK: 10.45,
-  NZD: 1.64,
-  MXN: 17.15,
-  SGD: 1.34,
-  HKD: 7.83,
-  NOK: 10.68,
-  KRW: 1335.5,
-  TRY: 32.15,
-  INR: 83.25,
-  RUB: 92.5,
-  BRL: 4.97,
-  ZAR: 18.75,
-};
 
 // Helper function to simulate network delay
 const delay = (): Promise<void> => {
@@ -59,32 +36,15 @@ const generateId = (): string => {
   });
 };
 
-// Calculate exchange rate with realistic spread
-const calculateRate = (from: string, to: string): number => {
-  const fromRate = BASE_RATES[from] || 1;
-  const toRate = BASE_RATES[to] || 1;
-  const midRate = toRate / fromRate;
-
-  // Add 0.5% - 2% spread
-  const config = getMockConfig();
-  const spread = config.deterministicMode
-    ? 0.01
-    : Math.random() * 0.015 + 0.005;
-  return midRate * (1 - spread);
-};
-
-// Calculate fee based on amount
+// Calculate fee based on amount. Fixed until 10k. Mockup done by me
 const calculateFee = (amount: number): number => {
   if (amount < 100) return 2.5;
   if (amount < 1000) return 3.5;
   if (amount < 10000) return 5.0;
-  return amount * 0.001; // 0.1% for large amounts
+  return amount * 0.001;
 };
 
-/**
- * POST /quote - Get FX quote
- * Simulates fetching a real-time exchange rate with expiry
- */
+// POST /quote - Get FX quote
 export const getQuote = async (
   sourceCurrency: string,
   destinationCurrency: string,
@@ -112,11 +72,7 @@ export const getQuote = async (
     );
   }
 
-  if (!BASE_RATES[sourceCurrency] || !BASE_RATES[destinationCurrency]) {
-    throw new Error("UNSUPPORTED_CURRENCY: Currency not supported.");
-  }
-
-  const rate = calculateRate(sourceCurrency, destinationCurrency);
+  const rate = await getExchangeRate(sourceCurrency, destinationCurrency);
   const fee = calculateFee(amount);
   const destinationAmount = amount * rate;
   const totalPayable = amount + fee;
@@ -136,10 +92,7 @@ export const getQuote = async (
   return quote;
 };
 
-/**
- * POST /pay - Submit payment
- * Validates quote and creates transaction
- */
+// POST /pay
 export const submitPayment = async (
   request: PaymentRequest,
 ): Promise<PaymentResponse> => {
@@ -147,7 +100,6 @@ export const submitPayment = async (
 
   const config = getMockConfig();
 
-  // Check for duplicate submission
   const paymentKey = `${request.quoteId}-${request.amount}`;
   if (pendingPayments.has(paymentKey)) {
     throw new Error(
@@ -158,18 +110,14 @@ export const submitPayment = async (
   pendingPayments.add(paymentKey);
 
   try {
-    // Simulate failure
     if (shouldFail(config.paymentFailureRate)) {
       throw new Error(
         "INSUFFICIENT_FUNDS: Payment failed due to insufficient funds.",
       );
     }
 
-    // Validate quote hasn't expired (in real scenario, backend would validate)
-    // For simulation, we skip this check since we don't store quotes server-side
-
     const transactionId = generateId();
-    const rate = calculateRate(
+    const rate = await getExchangeRate(
       request.sourceCurrency,
       request.destinationCurrency,
     );
@@ -192,11 +140,10 @@ export const submitPayment = async (
 
     transactionStore.set(transactionId, transaction);
 
-    // Simulate async processing
+    // Simulate async
     setTimeout(() => {
       const tx = transactionStore.get(transactionId);
       if (tx && tx.status === "PROCESSING") {
-        // Check if should fail during processing
         if (shouldFail(config.transactionFailureRate)) {
           tx.status = "FAILED";
           tx.statusMessage =
@@ -207,7 +154,7 @@ export const submitPayment = async (
           tx.statusMessage = "Payment has been sent to recipient";
           tx.updatedAt = Date.now();
 
-          // Schedule settlement
+          // Settlement logic with delay
           setTimeout(() => {
             const sentTx = transactionStore.get(transactionId);
             if (sentTx && sentTx.status === "SENT") {
@@ -231,10 +178,7 @@ export const submitPayment = async (
   }
 };
 
-/**
- * GET /transaction/:id - Get transaction status
- * Returns current transaction state
- */
+// GET /transaction/:id
 export const getTransactionStatus = async (
   transactionId: string,
 ): Promise<Transaction> => {
@@ -246,21 +190,14 @@ export const getTransactionStatus = async (
     throw new Error("TRANSACTION_NOT_FOUND: Transaction not found.");
   }
 
-  // Return a copy to prevent external mutation
   return { ...transaction };
 };
 
-/**
- * Utility function to clear all mock data (useful for testing)
- */
 export const clearMockData = () => {
   transactionStore.clear();
   pendingPayments.clear();
 };
 
-/**
- * Utility function to get all transactions (for debugging)
- */
 export const getAllTransactions = (): Transaction[] => {
   return Array.from(transactionStore.values());
 };

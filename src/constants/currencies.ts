@@ -1,4 +1,3 @@
-// Currency data: Top 20 most traded currencies by volume
 export interface Currency {
   code: string;
   name: string;

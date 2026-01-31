@@ -14,7 +14,6 @@ const StatusScreen: React.FC = () => {
   const pollingIntervalRef = useRef<number | null>(null);
   const [pollingError, setPollingError] = useState<string | null>(null);
 
-  // Poll for transaction status updates
   useEffect(() => {
     if (!transaction) {
       navigate("/");
@@ -28,7 +27,6 @@ const StatusScreen: React.FC = () => {
         );
         dispatch({ type: "UPDATE_TRANSACTION", payload: updatedTransaction });
 
-        // Stop polling if transaction is in terminal state
         if (
           updatedTransaction.status === "SETTLED" ||
           updatedTransaction.status === "FAILED"
@@ -46,14 +44,11 @@ const StatusScreen: React.FC = () => {
         const message =
           error instanceof Error ? error.message : "Connection error";
         setPollingError(message);
-        // Continue polling even on error (transient network issues)
       }
     };
 
-    // Initial poll
     pollStatus();
 
-    // Set up polling interval (every 2 seconds)
     pollingIntervalRef.current = setInterval(
       pollStatus,
       2000,
@@ -77,7 +72,6 @@ const StatusScreen: React.FC = () => {
       );
       dispatch({ type: "UPDATE_TRANSACTION", payload: updatedTransaction });
 
-      // Resume polling if not in terminal state
       if (
         updatedTransaction.status !== "SETTLED" &&
         updatedTransaction.status !== "FAILED"
@@ -233,7 +227,6 @@ const StatusScreen: React.FC = () => {
             Transaction Status
           </h1>
 
-          {/* Transaction ID */}
           <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <p className="text-sm text-gray-600 mb-1">Transaction ID</p>
             <p className="text-sm font-mono font-semibold text-gray-900 break-all">
@@ -241,7 +234,6 @@ const StatusScreen: React.FC = () => {
             </p>
           </div>
 
-          {/* Status Badge */}
           <div className="mb-6 flex justify-center">
             <div
               className={`px-6 py-3 rounded-lg border-2 ${getStatusColor(
@@ -257,13 +249,10 @@ const StatusScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Progress Steps (only show if not failed) */}
           {transaction.status !== "FAILED" && renderStatusSteps()}
 
-          {/* Progress Bar */}
           {renderProgressBar()}
 
-          {/* Status Message */}
           <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-blue-900 font-medium">
               {transaction.statusMessage}
@@ -295,7 +284,6 @@ const StatusScreen: React.FC = () => {
             )}
           </div>
 
-          {/* Polling Error */}
           {pollingError && (
             <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
               <p className="text-yellow-900 font-medium mb-2">
@@ -311,7 +299,6 @@ const StatusScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Transaction Details */}
           <div className="mb-6 p-6 bg-gray-50 rounded-lg border border-gray-200">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">
               Transaction Details
@@ -359,7 +346,6 @@ const StatusScreen: React.FC = () => {
             </div>
           </div>
 
-          {/* Failed Transaction Actions */}
           {transaction.status === "FAILED" && (
             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-900 font-semibold mb-2">
@@ -378,7 +364,6 @@ const StatusScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Success Actions */}
           {transaction.status === "SETTLED" && (
             <div className="mb-6">
               <button
@@ -390,7 +375,6 @@ const StatusScreen: React.FC = () => {
             </div>
           )}
 
-          {/* Always show back to home option */}
           <button
             onClick={handleNewTransaction}
             className="w-full px-6 py-3 bg-gray-200 text-gray-800 rounded-lg font-semibold hover:bg-gray-300 transition-colors"
