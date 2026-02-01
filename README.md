@@ -1,5 +1,7 @@
-# OpenFX - International Money Transfer
+Deployed on https://open-fx-take-home.vercel.app/ . You can have a look. 
 
+Rest of the README written using AI
+# OpenFX - International Money Transfer
 A simplified frontend for international money transfers built with React, TypeScript, and Tailwind CSS.
 
 ## Features
