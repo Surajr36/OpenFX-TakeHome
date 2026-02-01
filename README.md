@@ -140,17 +140,7 @@ src/
 
 ## Testing
 
-- **41 comprehensive tests** covering all functionality
-- Unit tests for API, exchange rate service, context/reducer, and components
-- Edge case testing for all scenarios
-- 100% coverage of critical paths
-
-## Documentation
-
-See the [`docs/`](docs/) folder for additional documentation:
-
-- **ARCHITECTURE.md**: System design and component relationships
-- **LEARNING.md**: Technology deep-dives and best practices (React, TypeScript, Vitest, etc.)
+- Basic testing scenarios covered
 
 ## License
 
